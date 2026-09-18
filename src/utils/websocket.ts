@@ -6,7 +6,8 @@
  * 
  * - PRODUCTION:
  *   Reads from NEXT_PUBLIC_WS_URL (e.g. wss://syncspace-ws.onrender.com).
- *   Safely normalizes protocols (https -> wss, http -> ws) and strips trailing slashes
+ *   Safely normalizes protocols (https -> wss, http
+ *  -> ws) and strips trailing slashes
  *   so y-websocket can cleanly append the room path: ${wsUrl}/${room}.
  */
 
