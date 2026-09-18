@@ -6,6 +6,7 @@ import { WebsocketProvider } from 'y-websocket';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { UserPresence, ConnectionStatus, CollaborationState } from '../types/collaboration';
 import { generateRandomUser } from '../utils/user';
+import { resolveRoomWebSocketUrl } from '../utils/websocket';
 
 interface UseCollaborationOptions {
   room: string;
@@ -27,7 +28,7 @@ const DEFAULT_USER: UserPresence = {
 export function useCollaboration({
   room,
   idbName,
-  wsUrl = typeof window !== 'undefined' ? `ws://${window.location.hostname}:1234` : 'ws://localhost:1234',
+  wsUrl: customWsUrl,
   initialUser,
   initialUserName,
   initialTitle,
@@ -61,6 +62,11 @@ export function useCollaboration({
   const [indexeddbProvider, setIndexeddbProvider] = useState<IndexeddbPersistence | null>(null);
   const providerRef = useRef<WebsocketProvider | null>(null);
   const userRef = useRef<UserPresence>(user);
+
+  // Safely resolve environment-aware WebSocket base URL
+  const resolvedWsUrl = useMemo(() => {
+    return resolveRoomWebSocketUrl(room, customWsUrl);
+  }, [room, customWsUrl]);
 
   // Client-side user initialization to avoid SSR hydration mismatch
   useEffect(() => {
@@ -132,7 +138,7 @@ export function useCollaboration({
     });
 
     // 2. Setup WebSocket Provider
-    const ws = new WebsocketProvider(wsUrl, room, ydoc, {
+    const ws = new WebsocketProvider(resolvedWsUrl, room, ydoc, {
       connect: true,
       maxBackoffTime: 2500,
     });
@@ -209,7 +215,7 @@ export function useCollaboration({
       idb.destroy();
       providerRef.current = null;
     };
-  }, [room, wsUrl, ydoc]);
+  }, [room, resolvedWsUrl, ydoc]);
 
   // Update awareness when user profile changes
   useEffect(() => {

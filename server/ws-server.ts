@@ -3,7 +3,9 @@ import http from 'http';
 // @ts-ignore
 import { setupWSConnection } from 'y-websocket/bin/utils';
 
-const port = process.env.PORT || 1234;
+const port = Number(process.env.PORT) || 1234;
+const host = process.env.HOST || '0.0.0.0';
+
 const server = http.createServer((request, response) => {
   response.writeHead(200, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify({ status: 'ok', service: 'SyncSpace Yjs WebSocket Server' }));
@@ -17,7 +19,7 @@ wss.on('connection', (conn: WebSocket, req: http.IncomingMessage) => {
   console.log(`[SyncSpace WS] Client connected: ${req.url}`);
 });
 
-server.listen(port, () => {
-  console.log(`🚀 [SyncSpace WS] Real-time collaboration server listening on port ${port}`);
-  console.log(`📡 WebSocket URL: ws://localhost:${port}`);
+server.listen(port, host, () => {
+  console.log(`🚀 [SyncSpace WS] Real-time collaboration server listening on ${host}:${port}`);
+  console.log(`📡 WebSocket URL: ws://${host === '0.0.0.0' ? 'localhost' : host}:${port}`);
 });
